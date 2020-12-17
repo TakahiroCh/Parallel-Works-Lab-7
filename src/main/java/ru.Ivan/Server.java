@@ -63,15 +63,17 @@ public class Server {
         String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
         if (message.startsWith("notice")) {
             try {
-                notice(msg, message, frame);
+                notice(message, frame);
             } catch (Exception e){
                 msg.getLast().reset("Exception");
                 msg.send(clientSocket);
             }
+        } else {
+            msg.send(clientSocket);
         }
     }
 
-    private static void notice(ZMsg msg, String message, ZFrame frame) throws Exception {
+    private static void notice(String message, ZFrame frame) throws Exception {
         String[] split = message.split(SPLIT);
         String id = split[1];
         long start = Integer.parseInt(split[2]);
@@ -79,7 +81,7 @@ public class Server {
         boolean existing = false;
         for (int i = 0; i < caches.size() + 1; i++) {
             if (i == caches.size()) {
-                caches.add(new Cache(start, finish, id, fr))
+                caches.add(new Cache(start, finish, id, frame));
             } else if (caches.get(i).getId().equals(id)) {
                 caches.get(i).changeStart(start);
                 caches.get(i).changeFinish(finish);
