@@ -53,7 +53,10 @@ public class Server {
                     long key = Integer.parseInt(message.split(SPLIT)[1]);
                     boolean exists = false;
                     for (Cache c : caches) {
-                        if (c)
+                        Boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT
+                        if (c.getStart() <= key && c.getFinish() >= key && timeout) {
+                            c.
+                        }
                     }
                 }
             }
