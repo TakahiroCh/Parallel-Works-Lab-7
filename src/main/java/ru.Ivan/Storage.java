@@ -61,6 +61,9 @@ public class Storage {
                 }
             }
         }
+
+        cont.destroySocket(socket);
+        cont.destroy();
     }
 
     private static void put(String message, ArrayList<String> caches, long start) {
