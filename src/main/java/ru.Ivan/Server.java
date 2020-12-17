@@ -51,17 +51,22 @@ public class Server {
                 ZMsg msg = ZMsg.recvMsg(clientSocket);
                 String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
                 if (message.startsWith("get")) {
-                    get(msg, message);
+                    try {
+                        get(msg, message);
+                    } catch (Exception e) {
+                        msg.getLast().reset("Exception");
+                        msg.send(clientSocket);
+                    }
                 }
             }
         }
     }
 
-    private static void get(ZMsg msg, String message) {
+    private static void get(ZMsg msg, String message) throws Exception {
         long key = Integer.parseInt(message.split(SPLIT)[1]);
         boolean exists = false;
         for (Cache c : caches) {
-            Boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT
+            boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT
             if (c.getStart() <= key && c.getFinish() >= key && timeout) {
                 c.getFrame().send(serverSocket, ZFrame.REUSE | ZFrame.MORE);
                 msg.send(serverSocket, false);
