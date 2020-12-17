@@ -47,14 +47,31 @@ public class Storage {
                 if (msg.contains(GET)) {
                     try {
                         get(msg, message, caches, start);
-                    } catch ()
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                        msg.getLast().reset("Exception");
+                    }
+                    msg.send(socket);
+                }
+                if (msg.contains(PUT)) {
+                    try {
+                        put(message, caches, start);
+                    } catch (NumberFormatException | IndexOutOfBoundsException e) {
+                        msg.getLast().reset("Exception");
+                    }
                 }
             }
         }
     }
 
+    private static void put(String message, ArrayList<String> caches, long start) {
+        String[] split = message.split(SPLIT);
+        long key = Integer.parseInt(split[1]);
+        String value = split[2];
+        caches.set((int) (key - start), value);
+    }
+
     private static void get(ZMsg msg, String message, ArrayList<String> caches, long start) {
         long index = Integer.parseInt(message.split(SPLIT)[1]);
-        msg.getLast().reset(CACHE + " " + caches.get(index - start));
+        msg.getLast().reset(CACHE + " " + caches.get((int) (index - start)));
     }
 }
