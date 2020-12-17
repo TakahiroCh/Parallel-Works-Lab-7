@@ -134,7 +134,7 @@ public class Server {
         long key = Integer.parseInt(message.split(SPLIT)[1]);
         boolean exists = false;
         for (Cache c : caches) {
-            boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT
+            boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT;
             if (c.getStart() <= key && c.getFinish() >= key && timeout) {
                 c.getFrame().send(serverSocket, ZFrame.REUSE | ZFrame.MORE);
                 msg.send(serverSocket, false);
