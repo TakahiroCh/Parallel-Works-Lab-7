@@ -12,4 +12,22 @@ public class Cache {
         this.id = id;
         this.time = System.currentTimeMillis();
     }
+
+    public long getFinish() {
+        return finish;
+    }
+
+    public long getStart() {
+        return start;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+
 }
