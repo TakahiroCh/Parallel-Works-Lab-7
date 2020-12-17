@@ -79,8 +79,9 @@ public class Server {
         boolean existing = false;
         for (int i = 0; i < caches.size() + 1; i++) {
             if (i == caches.size()) {
-                caches.get(i).getStart() = start;
-                caches.get(i).ge
+                caches.get(i).changeStart(start);
+                caches.get(i).changeFinish(finish);
+                caches.get(i).changeTime(System.currentTimeMillis());
             }
         }
     }
