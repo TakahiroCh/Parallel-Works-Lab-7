@@ -33,4 +33,8 @@ public class Cache {
         return id;
     }
 
+    public ZFrame getFrame() {
+        return frame;
+    }
+
 }
