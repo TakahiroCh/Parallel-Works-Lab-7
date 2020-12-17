@@ -17,6 +17,18 @@ public class Cache {
         this.time = System.currentTimeMillis();
     }
 
+    public void changeStart(long start) {
+        this.start = start;
+    }
+
+    public void changeFinish(long finish) {
+        this.finish = finish;
+    }
+
+    public void changeTime(long time) {
+        this.time = time;
+    }
+
     public long getFinish() {
         return finish;
     }

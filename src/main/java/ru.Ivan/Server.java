@@ -15,6 +15,7 @@ public class Server {
     final private static String SERVER = "tcp://localhost:7777";
     final private static int TIMEOUT = 7000;
     final private static int CLIENT_SOCKET = 0;
+    final private static int SERVER_SOCKET = 1;
     final private static String SPLIT = " ";
 
     private static Socket clientSocket;
@@ -48,16 +49,75 @@ public class Server {
                 time = System.currentTimeMillis();
             }
             if (poller.pollin(CLIENT_SOCKET)) {
-                ZMsg msg = ZMsg.recvMsg(clientSocket);
-                String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
-                if (message.startsWith("get")) {
-                    try {
-                        get(msg, message);
-                    } catch (Exception e) {
-                        msg.getLast().reset("Exception");
-                        msg.send(clientSocket);
-                    }
-                }
+                clientSocketRunning();
+            }
+            if (poller.pollin(SERVER_SOCKET)) {
+                serverSocketRunning();
+            }
+        }
+    }
+
+    private static void serverSocketRunning() {
+        ZMsg msg = ZMsg.recvMsg(serverSocket);
+        ZFrame frame = msg.unwrap();
+        String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
+        if (message.startsWith("notice")) {
+            try {
+                notice();
+            } catch (Exception e){
+                msg.getLast().reset("Exception");
+                msg.send(clientSocket);
+            }
+        }
+    }
+
+    private static void notice(ZMsg msg, String message) throws Exception {
+        String[] split = message.split(SPLIT);
+        String id = split[1];
+        long start = Integer.parseInt(split[2]);
+        long finish = Integer.parseInt(split[3]);
+        boolean existing = false;
+        for (int i = 0; i < caches.size() + 1; i++) {
+            if (i == caches.size()) {
+                caches.get(i).getStart() = start;
+                caches.get(i).ge
+            }
+        }
+    }
+
+    private static void clientSocketRunning() {
+        ZMsg msg = ZMsg.recvMsg(clientSocket);
+        String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
+        if (message.startsWith("get")) {
+            try {
+                get(msg, message);
+            } catch (Exception e) {
+                msg.getLast().reset("Exception");
+                msg.send(clientSocket);
+            }
+        } else if (message.startsWith("put")) {
+            try {
+                put(msg, message);
+            } catch (Exception e) {
+                msg.getLast().reset("Exception");
+                msg.send(clientSocket);
+            }
+            msg.getLast().reset("Done...");
+            msg.send(clientSocket);
+        } else {
+            msg.getLast().reset("Non-existing command");
+            msg.send(clientSocket);
+        }
+    }
+
+    private static void put(ZMsg msg, String message) throws Exception {
+        String[] split = message.split(SPLIT);
+        long key = Integer.parseInt(split[1]);
+        String value = split[2];
+        for (Cache c : caches) {
+            if (c.getStart() <= key && c.getFinish() >= key) {
+                c.getFrame().send(serverSocket, ZFrame.REUSE | ZFrame.MORE);
+                msg.send(serverSocket, false);
             }
         }
     }
