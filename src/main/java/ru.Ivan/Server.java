@@ -38,10 +38,10 @@ public class Server {
 
         caches = new ArrayList<Cache>();
 
-        running();
+        running(cont);
     }
 
-    private static void running() {
+    private static void running(ZContext cont) {
         long time = System.currentTimeMillis();
         while (poller.poll(TIMEOUT) != -1) {
             if (System.currentTimeMillis() - time >= TIMEOUT) {
@@ -55,6 +55,9 @@ public class Server {
                 serverSocketRunning();
             }
         }
+        cont.destroySocket(clientSocket);
+        cont.destroySocket(serverSocket);
+        cont.destroy();
     }
 
     private static void serverSocketRunning() {
