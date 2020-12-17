@@ -17,6 +17,10 @@ public class Server {
     final private static int CLIENT_SOCKET = 0;
     final private static int SERVER_SOCKET = 1;
     final private static String SPLIT = " ";
+    final private static String NOTICE = "notice";
+    final private static String PUT = "put";
+    final private static String GET = "get";
+
 
     private static Socket clientSocket;
     private static Socket serverSocket;
@@ -64,7 +68,7 @@ public class Server {
         ZMsg msg = ZMsg.recvMsg(serverSocket);
         ZFrame frame = msg.unwrap();
         String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
-        if (message.startsWith("notice")) {
+        if (message.startsWith(NOTICE)) {
             try {
                 notice(message, frame);
             } catch (Exception e){
@@ -96,14 +100,14 @@ public class Server {
     private static void clientSocketRunning() {
         ZMsg msg = ZMsg.recvMsg(clientSocket);
         String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
-        if (message.startsWith("get")) {
+        if (message.startsWith(GET)) {
             try {
                 get(msg, message);
             } catch (Exception e) {
                 msg.getLast().reset("Exception");
                 msg.send(clientSocket);
             }
-        } else if (message.startsWith("put")) {
+        } else if (message.startsWith(PUT)) {
             try {
                 put(msg, message);
             } catch (Exception e) {
