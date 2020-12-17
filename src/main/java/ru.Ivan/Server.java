@@ -2,6 +2,7 @@ package ru.Ivan;
 
 import org.zeromq.SocketType;
 import org.zeromq.ZContext;
+import org.zeromq.ZFrame;
 import org.zeromq.ZMQ.*;
 import org.zeromq.ZMsg;
 
@@ -50,16 +51,27 @@ public class Server {
                 ZMsg msg = ZMsg.recvMsg(clientSocket);
                 String message = msg.getLast().toString().toLowerCase(Locale.ROOT);
                 if (message.startsWith("get")) {
-                    long key = Integer.parseInt(message.split(SPLIT)[1]);
-                    boolean exists = false;
-                    for (Cache c : caches) {
-                        Boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT
-                        if (c.getStart() <= key && c.getFinish() >= key && timeout) {
-                            c.
-                        }
-                    }
+                    get(msg, message);
                 }
             }
+        }
+    }
+
+    private static void get(ZMsg msg, String message) {
+        long key = Integer.parseInt(message.split(SPLIT)[1]);
+        boolean exists = false;
+        for (Cache c : caches) {
+            Boolean timeout = System.currentTimeMillis() - c.getTime() <= TIMEOUT
+            if (c.getStart() <= key && c.getFinish() >= key && timeout) {
+                c.getFrame().send(serverSocket, ZFrame.REUSE | ZFrame.MORE);
+                msg.send(serverSocket, false);
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            msg.getLast().reset("Not existing");
+            msg.send(clientSocket);
         }
     }
 
